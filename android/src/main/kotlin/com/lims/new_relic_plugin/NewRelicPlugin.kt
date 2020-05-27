@@ -19,7 +19,7 @@ public class NewRelicPlugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "new_relic_plugin")
+    channel = MethodChannel(flutterPluginBinding.flutterEngine.dartExecutor, "new_relic_plugin")
     channel.setMethodCallHandler(this);
   }
 
@@ -33,6 +33,8 @@ public class NewRelicPlugin: FlutterPlugin, MethodCallHandler {
   // depending on the user's project. onAttachedToEngine or registerWith must both be defined
   // in the same class.
   companion object {
+    private const val SUCCESS = "Success: The provided attribute was successfully submitted to New Relic -> "
+    private const val ERROR = "Error: Cannot submit the provided attribute -> "
     @JvmStatic
     fun registerWith(registrar: Registrar) {
       val channel = MethodChannel(registrar.messenger(), "new_relic_plugin")
@@ -45,11 +47,15 @@ public class NewRelicPlugin: FlutterPlugin, MethodCallHandler {
         "getPlatformVersion" -> {
           result.success("Android ${android.os.Build.VERSION.RELEASE}")
         }
-        "setAttribute" -> {
+        "setStringAttribute" -> {
           val name: String = call.argument("name")!!
-          val value: String = call.argument("value")!!
-          setAttribute(name, value)
-          result.success("Success: $name: $value sent to New Relic")
+          val value: String? = call.argument("value")
+          if (NewRelic.setAttribute(name, value)) {
+            result.success("$SUCCESS $name: $value")
+          } else {
+            result.error("$ERROR $name: $value", null, null)
+          }
+
         }
         else -> result.notImplemented()
     }
@@ -61,13 +67,13 @@ public class NewRelicPlugin: FlutterPlugin, MethodCallHandler {
 
   //  Add session-level custom attributes
 
-  fun setAttribute(name: String, value: String) {
+  private fun setAttribute(name: String, value: String) {
     NewRelic.setAttribute(name, value)
   }
 
-//  fun setAttribute(name: String, value: Float) {
-//    NewRelic.setAttribute(name, value)
-//  }
+  private fun setAttribute(name: String, value: Double) {
+    NewRelic.setAttribute(name, value)
+  }
 
 //  fun incrementAttribute(name: String, value: Float? = null, boolean: Boolean? = null) {
 //    NewRelic.incrementAttribute(name, value)

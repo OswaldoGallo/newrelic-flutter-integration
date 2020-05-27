@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void setAttribute(String name, String value) async {
-    print(await NewRelicPlugin.setAttribute(name, value));
+    print(await NewRelicPlugin.setStringAttribute(name, value));
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
