@@ -1,15 +1,26 @@
-# new_relic_plugin
+# New Relic Plugin
 
-A new Flutter plugin.
+Android plugin to [adding custom data to New Relic Mobile](https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile/maintenance/add-custom-data-new-relic-mobile).
+
+pubspec.yaml
+
+```
+  new_relic_plugin:
+    git:
+      url: git://github.com/OswaldoGallo/NewRelicPlugin.git
+```
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+Import NewRelicPlugin
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
-"# NewRelicPlugin" 
+```dart
+import 'package:new_relic_plugin/new_relic_plugin.dart';
+```
+
+### Set Attributes
+
+```
+// String Attribute
+NewRelicPlugin.setStringAttribute( "name", "value" )
+```
