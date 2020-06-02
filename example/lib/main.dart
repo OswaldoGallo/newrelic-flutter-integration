@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:new_relic_plugin/new_relic_plugin.dart';
+import 'package:new_relic_plugin/new_relic_plugin.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,35 +16,27 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
+  String _actionId = '';
+  final Map<String, dynamic> attributes = <String, dynamic> {
+    'TEST_ATTR': 'TEST_VALUE'
+  };
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-    setAttribute("TEST_ATTR", "Test Value");
+    startInteraction();
   }
 
-  void setAttribute(String name, String value) async {
-    print(await NewRelicPlugin.setStringAttribute(name, value));
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
+  Future<void> startInteraction() async {
+    String action_id;
     try {
-      platformVersion = await NewRelicPlugin.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      action_id = await NewRelicPlugin.startInteraction('TEST_INTERACTION');
+    } on Exception {
+      action_id = 'Failed to get interaction id.';
     }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
-
     setState(() {
-      _platformVersion = platformVersion;
+      _actionId = action_id;
     });
   }
 
@@ -55,7 +48,90 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Container(
+            padding: EdgeInsets.all(80.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Started Interaction With Id: $_actionId"),
+                SizedBox(
+                  height: 24,
+                ),
+                RaisedButton(
+                  color: Colors.grey,
+                  child: Text('SEND STRING TEST ATTRIBUTE'),
+                  onPressed: () {
+                    NewRelicPlugin.setStringAttribute(
+                        'TEST_STRING', 'Test Value');
+                  },
+                ),
+                SizedBox(
+                  height: 24,
+                ),
+                RaisedButton(
+                  color: Colors.grey,
+                  child: Text('SEND DOUBLE TEST ATTRIBUTE'),
+                  onPressed: () {
+                    NewRelicPlugin.setDoubleAttribute('TEST_DOUBLE', 0.5);
+                  },
+                ),
+                SizedBox(
+                  height: 24,
+                ),
+                RaisedButton(
+                  color: Colors.grey,
+                  child: Text('SEND BOOLEAN TEST ATTRIBUTE'),
+                  onPressed: () {
+                    NewRelicPlugin.setBooleanAttribute('TEST_BOOLEAN', true);
+                  },
+                ),
+                SizedBox(
+                  height: 24,
+                ),
+                RaisedButton(
+                  color: Colors.grey,
+                  child: Text('INCREMENT DOUBLE ATTRIBUTE'),
+                  onPressed: () {
+                    NewRelicPlugin.incrementAttribute('TEST_DOUBLE',
+                        value: 1.0);
+                  },
+                ),
+                SizedBox(
+                  height: 24,
+                ),
+                RaisedButton(
+                  color: Colors.grey,
+                  child: Text('INCREMENT DOUBLE ATTRIBUTE'),
+                  onPressed: () {
+                    NewRelicPlugin.recordBreadcrumb('TEST_BREADCRUMB',
+                        attributes: attributes);
+                  },
+                ),
+                SizedBox(
+                  height: 24,
+                ),
+                RaisedButton(
+                  color: Colors.grey,
+                  child: Text('END INTERACTION'),
+                  onPressed: () {
+                    if (_actionId != '') {
+                      NewRelicPlugin.endInteraction(_actionId);
+                    }
+                  },
+                ),
+                SizedBox(
+                  height: 24,
+                ),
+                RaisedButton(
+                  color: Colors.grey,
+                  child: Text('RECORD CUSTOM EVENT'),
+                  onPressed: () {
+                    NewRelicPlugin.recordCustomEvent('TEST_EVENT');
+                  },
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
