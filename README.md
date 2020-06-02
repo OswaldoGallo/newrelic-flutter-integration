@@ -1,4 +1,4 @@
-# New Relic Plugin
+# New Relic Flutter Integration Plugin
 
 Android plugin to [adding custom data to New Relic Mobile](https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile/maintenance/add-custom-data-new-relic-mobile).
 
